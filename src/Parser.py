@@ -25,9 +25,6 @@ class Parser:
             return atom.value
 
 class Tokenizer:
-    def __init__(self) -> None:
-        pass
-
     def tokenize(self, program : str) -> list:
         return program.replace('(', ' ( ').replace(')', ' ) ').split()
 
