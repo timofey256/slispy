@@ -3,10 +3,14 @@ import operator as op
 import Types
 
 class Environment:
-    def __init__(self, outer = None):
+    def __init__(self, parms=(), args=(), outer = None):
         self.env = {}
-        self.__set_default_env()
-        self.outer = None
+        if outer is not None:
+            self.env = outer.env
+        else:
+            self.__set_default_env()
+        self.env.update(zip(parms, args))
+        self.outer = outer
 
     def find(self, key):
         if key in self.env:
@@ -15,7 +19,7 @@ class Environment:
             return self.outer.find(key)
         return None
     
-    def update_env(self, parms=(), args=()):
+    def update(self, parms=(), args=()):
         self.env.update(zip(parms, args))
 
     def __set_default_env(self):

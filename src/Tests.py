@@ -65,6 +65,12 @@ class TestSchemeParser(unittest.TestCase):
         p = Parser()
         self.assertEqual(p.parse(tokens), expected_ast)
 
+
+def get_AST_out(expression : str):
+    t = Tokenizer()
+    p = Parser()
+    return p.parse(t.tokenize(expression))
+        
 class EvalTestCase(unittest.TestCase):
     def get_AST(self, expression : str):
         t = Tokenizer()
@@ -94,6 +100,20 @@ class EvalTestCase(unittest.TestCase):
         
     def test_combined_operations(self):
         self.assertEqual(eval(self.get_AST("(+ (* 2 3) (/ 6 2))")), 9)
+
+    def test_lambda_functions(self):
+        self.assertEqual(eval(self.get_AST("((define circle-area (lambda (r) (* pi (* r r)))) (circle-area 3))")), 28.274333882308138)
+        self.assertEqual(eval(self.get_AST("((define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1)))))) (fact 10))")), 3628800)
+        self.assertEqual(eval(self.get_AST("""(                 
+        (define first car) 
+        (define rest cdr) 
+        (define count (lambda (item L) (if L (+ (equal? item (first L)) (count item (rest L))) 0)))
+        (count 0 (list 0 1 2 3 0 0))
+        )""")), 3)
+        self.assertEqual(list(eval(self.get_AST("""(                 
+        (define range (lambda (a b) (if (= a b) (quote ()) (cons a (range (+ a 1) b)))))
+        (range 0 10)
+        )"""))), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 if __name__ == '__main__':
     unittest.main()
