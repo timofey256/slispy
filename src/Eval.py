@@ -11,7 +11,7 @@ def eval(exp : Types.Exp, e = global_env):
     
     op = exp[0]
     args = exp[1:]
-    if op == 'quote':            # quotation
+    if op == 'quote': 
         return args[0]
     elif op == "if":               
         (syntax_if, test, conseq, alt) = exp

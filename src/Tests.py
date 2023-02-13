@@ -22,12 +22,7 @@ class TestSchemeTokenizer(unittest.TestCase):
         expected_tokens = ['(', 'quote', '(', '1', '2', '3', ')', ')']
         t = Tokenizer()
         self.assertEqual(t.tokenize(expression), expected_tokens)
-
-    # def test_tokenize_string(self):
-    #     expression = '("hello world")'
-    #     expected_tokens = ['(', '"hello world"', ')']
-    #     self.assertEqual(tokenize(expression), expected_tokens)
-
+        
     def test_tokenize_symbol(self):
         expression = "(define x 10)"
         expected_tokens = ['(', 'define', 'x', '10', ')']
@@ -54,23 +49,12 @@ class TestSchemeParser(unittest.TestCase):
         p = Parser()
         self.assertEqual(p.parse(tokens), expected_ast)
 
-    # def test_parse_string(self):
-    #     tokens = ['(', '"hello world"', ')']
-    #     expected_ast = '"hello world"'
-    #     self.assertEqual(parse(tokens), expected_ast)
-
     def test_parse_symbol(self):
         tokens = ['(', 'define', 'x', '10', ')']
         expected_ast = ['define', 'x', 10]
         p = Parser()
         self.assertEqual(p.parse(tokens), expected_ast)
 
-
-def get_AST_out(expression : str):
-    t = Tokenizer()
-    p = Parser()
-    return p.parse(t.tokenize(expression))
-        
 class EvalTestCase(unittest.TestCase):
     def get_AST(self, expression : str):
         t = Tokenizer()
