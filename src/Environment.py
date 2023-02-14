@@ -1,8 +1,17 @@
+"""
+Memory was implemented using dicitionary.
+"""
+
 import math
 import operator as op
 import Types
 
+
 class Environment:
+    """
+    parms, args are used to add new variables in some scope
+    outer is an outer scope 
+    """
     def __init__(self, parms=(), args=(), outer = None):
         self.env = {}
         if outer is not None:
@@ -12,9 +21,12 @@ class Environment:
         self.env.update(zip(parms, args))
         self.outer = outer
 
+
     def find(self, key):
         if key in self.env:
             return self.env[key]
+        # If we can not find a variable in current scope,
+        # then try it in outer scope ("in more global scope" so to say) 
         elif self.outer is not None:
             return self.outer.find(key)
         return None
@@ -22,6 +34,9 @@ class Environment:
     def update(self, parms=(), args=()):
         self.env.update(zip(parms, args))
 
+    """
+    Sets default functions and variables in the language.
+    """
     def __set_default_env(self):
         self.env.update(vars(math))
         self.env.update({

@@ -1,8 +1,11 @@
 import Types
 from Environment import Environment
 
-global_env = Environment()
+global_env = Environment()  # Global scope
 
+"""
+Main function which evaluates value of expression.
+"""
 def eval(exp : Types.Exp, e = global_env):
     if isinstance(exp, Types.Symbol):   
         return e.env[exp]
@@ -35,6 +38,12 @@ def eval(exp : Types.Exp, e = global_env):
                     return arg
         return proc(*args)
 
+"""
+The Procedure class implements function with arguments.
+"""
+# (To be honest, it would be better to put this class into Types.py
+# but i couldn't solve a problem with two-way importing: here, it Eval.py we use the Procedure class
+# and in the class we also use eval() function)
 class Procedure:
     def __init__(self, parms, body, env):
         self.parms, self.body, self.env = parms, body, env

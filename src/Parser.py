@@ -23,11 +23,19 @@ class Parser:
         else:
             atom = Atom(token)
             return atom.value
-
+        
+"""
+The Tokenizer class divides source file into so-called tokens (= elements which we structure
+to create AST of a program)
+"""
 class Tokenizer:
     def tokenize(self, program : str) -> list:
         return program.replace('(', ' ( ').replace(')', ' ) ').split()
 
+"""
+Atom is the most smallest object in Lisp which we can not
+eval further.
+"""
 class Atom:
     def __init__(self, value) -> None:
         self.value = self.__set__value(value)
