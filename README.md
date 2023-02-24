@@ -1,6 +1,6 @@
 ## **S**imple **LISP** Interpreter in Python.
 
-**Slispy** is a dialect of the LISP programming language, written in Python. It is a simple interpreter that can be installed by cloning the repository and running `python3 main.py path=="[PATH to .slispy file]"`.
+**Slispy** is a dialect of the LISP programming language, written in Python. It is a simple interpreter that can be installed by cloning the repository and running `python3 src/main.py path=="[PATH to .slispy file]"`.
 
 Slispy provides standard types, including integers, floating-point numbers, booleans, and strings. It also supports lists, lambda functions, conditions, which are a key feature of the LISP programming language.
 
