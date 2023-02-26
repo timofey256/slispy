@@ -5,7 +5,7 @@ Memory was implemented using dicitionary.
 import math
 import operator as op
 import Types
-
+import StandardLibrary as stl
 
 class Environment:
     """
@@ -48,6 +48,8 @@ class Environment:
             'begin':   lambda *x: x[-1],
             'car':     lambda x: x[0],
             'cdr':     lambda x: x[1:], 
+            'setcar':  stl.setcar,
+            'setcdr':  stl.setcdr,
             'cons':    lambda x,y: [x] + y,
             'eq?':     op.is_, 
             'expt':    pow,
@@ -65,4 +67,4 @@ class Environment:
             'procedure?': callable,
             'round':   round,
             'symbol?': lambda x: isinstance(x, Types.Symbol),
-        })
+            })
