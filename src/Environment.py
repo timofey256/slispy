@@ -22,7 +22,6 @@ class Environment:
         self.env.update(zip(parms, args))
         self.outer = outer
 
-
     def find(self, key):
         if key in self.env:
             return self.env[key]
@@ -97,8 +96,13 @@ class Header:
         self.is_free = True
         self.is_marked = False
 
+        self.data = None
+
+    def set_data(self, data):
+        self.data = data
+
     def __repr__(self):
-        return f"Size: {self.size}\nIs Free: {self.is_free}"
+        return f"size: {self.size} | data: {self.data} | is_free: {self.is_free}"
 
 MAX_HEAP_SIZE = 256
 HEADER_SIZE = sys.getsizeof(Header)
@@ -179,3 +183,30 @@ class VirtualMemory:
         block.size = size
         block.next = new_block
         return block
+
+    def gc(self, env):
+        reachable_objects = env.values()
+        self.markAll(reachable_objects)
+        self.sweep()
+        self.unmarkAll()
+
+    def markAll(self, objects):
+        for obj in objects:
+            obj.is_marked = True
+
+    def unmarkAll(self):
+        for obj in self.heap:
+            obj.is_marked = False
+
+    def sweep(self):
+        current = self.first_block
+
+        while (current):
+            if (current.is_marked is not True):
+                current.data = None
+                current.is_free = True
+            current = current.next
+
+    def free_block(self, block):
+        block.is_free = True
+        block.data = None
