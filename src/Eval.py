@@ -8,7 +8,7 @@ Main function which evaluates value of expression.
 """
 def eval(exp : Types.Exp, e = global_env):
     if isinstance(exp, Types.Symbol):   
-        return e.env[exp]
+        return e.get_var(exp)
     elif isinstance(exp, Types.Number):    
         return exp            
     
@@ -22,10 +22,12 @@ def eval(exp : Types.Exp, e = global_env):
         return eval(exp, e)
     elif op == "define":           
         (_, symbol, exp) = exp
-        e.env[symbol] = eval(exp, e)
+        e.set_var(symbol, eval(exp, e))
+        #e.env[symbol] = eval(exp, e)
     elif op == "set!":
         (symbol, value) = args
-        e.env[symbol] = eval(value, e)
+        e.set_var(symbol, eval(value, e))
+        #e.env[symbol] = eval(value, e)
     elif op == "lambda":
         (parms, body) = args
         return Procedure(parms, body, e)
