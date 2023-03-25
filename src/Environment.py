@@ -5,6 +5,12 @@ import StandardLibrary as stl
 import sys
 from VirtualMemory import VM_Manager
 
+"""
+Environment is used to represent current context during the execution time.
+
+It stores pairs of variables in dictionary as <name : index in heap of VM>, 
+can create new variables and return information about previously created ones.
+"""
 class Environment:
     """
     parms, args are used to add new variables in some scope
@@ -24,7 +30,7 @@ class Environment:
             block = vm.heap[self.__env[key]]
             block.data = value
         else:
-            (new_block, index) = vm.malloc(sys.getsizeof(value))
+            (new_block, index) = self.__try_allocate_memory(vm, value)
             if new_block is None:
                 raise Exception("Not enough memory.")
             
@@ -33,7 +39,7 @@ class Environment:
 
     def get_var(self, key):
         vm = VM_Manager.get_instance()
-        value = self.__find(key)
+        value = self.__find(vm, key)
 
         if value is None:
             raise Exception(f"{key} wasn't defined")
@@ -47,8 +53,18 @@ class Environment:
         for item in v.items():
             self.set_var(item[0], item[1])
 
-    def __find(self, key):
-        vm = VM_Manager.get_instance()
+    def __try_allocate_memory(self, vm, data):
+        new_block, index = None, None
+        (new_block, index) = vm.malloc(sys.getsizeof(data))
+
+        # If there's not enough memory, start garbage collector and then try to allocate again
+        if new_block is None:
+            vm.gc(self.__env)
+            (new_block, index) = vm.malloc(sys.getsizeof(data))
+
+        return (new_block, index)          
+
+    def __find(self, vm, key):
         if key in self.__env:
             index = self.__env[key]
             block = vm.heap[index]
@@ -56,7 +72,7 @@ class Environment:
         # If we can not find a variable in current scope,
         # then try it in outer scope ("in more global scope" so to say) 
         elif self.outer is not None:
-            return self.outer.__find(key)
+            return self.outer.__find(vm, key)
         return None
     
     """

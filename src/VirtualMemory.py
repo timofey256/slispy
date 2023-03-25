@@ -26,7 +26,7 @@ class _Block:
     def __repr__(self):
         return f"[size: {self.size} | data: {self.data} | is_free: {self.is_free}]"
 
-MAX_HEAP_SIZE = 256
+MAX_HEAP_SIZE = 512
 HEADER_SIZE = sys.getsizeof(_Block)
 
 class _VirtualMemory:
@@ -42,22 +42,25 @@ class _VirtualMemory:
     def malloc(self, size):
         block = None
 
-        if size <= 0:
-            return None
+        self.__is_valid_allocation(size)
 
         size += HEADER_SIZE
         
         if self.first_block == None:
-            block = self.request_memory(size)
+            block = self.__request_memory(size)    
             if block == None:
                     return None
+            
             self.first_block = block
+        
         else:
-            block = self.find_free_block(self.first_block, size)
+            block = self.__find_free_block(self.first_block, size)
+            
             if block == None:
-                block = self.request_memory(size)
-                if block == None:
+                block = self.__request_memory(size)    
+                if block == None: 
                     return None
+                
             else:
                 block.is_free = False
 
@@ -70,8 +73,18 @@ class _VirtualMemory:
         
         index = self.heap_size-1
         return (block, index)
+
+    def gc(self, env):
+        reachable_objects = env.values()
+        self.__markAll(reachable_objects)
+        self.__sweep()
+        self.__unmarkAll()
     
-    def request_memory(self, size):
+    def free_block(self, block):
+        block.is_free = True
+        block.data = None
+
+    def __request_memory(self, size):
         block = _Block(size)
         block.next = None
         block.is_free = False
@@ -83,23 +96,30 @@ class _VirtualMemory:
             self.first_block = block
 
         _VirtualMemory.last_block = block    
-
+        
         return block
 
-    def find_free_block(self, start_block, size):
+    def __is_valid_allocation(self, size):
+        if size <= 0:
+            raise Exception("Invalid size of data for allocation.")
+        
+        if (self.heap_size-1) >= MAX_HEAP_SIZE:
+            raise Exception("Heap overflow.")
+
+    def __find_free_block(self, start_block, size):
         current = start_block
 
         while (current):
             if current.is_free and current.size >= size:
                 if current.size >= 2*size:
-                    current = self.split_block(current, size)  
+                    current = self.__split_block(current, size)  
                 return current
             
             current = current.next
 
         return None
 
-    def split_block(block, size):
+    def __split_block(block, size):
         new_block = _Block(block.size - size)
         new_block.next = block.next
         new_block.is_free = True
@@ -108,23 +128,17 @@ class _VirtualMemory:
         block.next = new_block
         return block
 
-    def gc(self, env):
-        reachable_objects = env.values()
-        self.markAll(reachable_objects)
-        self.sweep()
-        self.unmarkAll()
-
-    def markAll(self, indices):
+    def __markAll(self, indices):
         for index in indices:
             block = self.heap[index]
             block.is_marked = True
 
-    def unmarkAll(self):
+    def __unmarkAll(self):
         for obj in self.heap:
             if obj is not None:
                 obj.is_marked = False
 
-    def sweep(self):
+    def __sweep(self):
         current = self.first_block
 
         while (current):
@@ -132,8 +146,3 @@ class _VirtualMemory:
                 current.data = None
                 current.is_free = True
             current = current.next
-
-    def free_block(self, block):
-        block.is_free = True
-        block.data = None
-        

@@ -23,11 +23,9 @@ def eval(exp : Types.Exp, e = global_env):
     elif op == "define":           
         (_, symbol, exp) = exp
         e.set_var(symbol, eval(exp, e))
-        #e.env[symbol] = eval(exp, e)
     elif op == "set!":
         (symbol, value) = args
         e.set_var(symbol, eval(value, e))
-        #e.env[symbol] = eval(value, e)
     elif op == "lambda":
         (parms, body) = args
         return Procedure(parms, body, e)
