@@ -136,3 +136,4 @@ class _VirtualMemory:
     def free_block(self, block):
         block.is_free = True
         block.data = None
+        
