@@ -2,7 +2,8 @@ import unittest
 
 from Parser import Tokenizer
 from Parser import Parser
-from Eval import eval
+from Eval import eval, Procedure
+from Environment import Environment
 
 class TestSchemeTokenizer(unittest.TestCase):
     def test_tokenize_simple_expression(self):
@@ -98,6 +99,38 @@ class EvalTestCase(unittest.TestCase):
         (define range (lambda (a b) (if (= a b) (quote ()) (cons a (range (+ a 1) b)))))
         (range 0 10)
         )"""))), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+class TestMemoryManagement(unittest.TestCase):
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName)
+
+    def test_variable_initialization(self):
+        env = Environment()
+        var = 5
+        env.set_var("var", var)
+        self.assertEqual(env.get_var("var"), var)
+
+    def test_gc(self):
+        env = Environment()
+
+        var2 = 10
+        inner_env = Environment((), (), env)
+        inner_env.set_var("var2", var2)
+        env.force_gc()
+        try:
+            inner_env.get_var("var2")
+            self.assertEqual(1, 2)
+        except:
+            self.assertEqual(True, True)
+        
+    def test_procedure_scope_with_forced_gc(self):
+        env = Environment()
+
+        f = Procedure("r", ["*", "r", 5], env)
+        env.set_var("function", f)
+        env.force_gc()
+        getted = env.get_var("function")
+        self.assertEqual(getted(3), 15)
 
 if __name__ == '__main__':
     unittest.main()
