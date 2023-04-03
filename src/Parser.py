@@ -3,26 +3,28 @@ import Types
 class Parser:
     def __init__(self) -> None:
         pass
-
-    def parse(self, tokens : list) -> Types.Exp:
-        if len(tokens) == 0:
+        
+    def parse(self, tokens: list) -> Types.Exp:
+        stack = []
+        expr = []
+        
+        for token in tokens:
+            if token == '(':
+                stack.append(expr)
+                expr = []
+            elif token == ')':
+                if not stack:
+                    raise SyntaxError('Unexpected syntax.')
+                nested_expr = expr
+                expr = stack.pop()
+                expr.append(nested_expr)
+            else:
+                expr.append(Atom(token).value)
+        
+        if stack:
             raise SyntaxError('Unexpected EOF.')
         
-        token = tokens.pop(0)
-
-        if token == '(':
-            L = []
-            while tokens[0] != ')':
-                L.append(self.parse(tokens))
-            tokens.pop(0) # pop off ')'
-            return L
-        
-        elif token == ')':
-            raise SyntaxError('Unexpected syntax.')
-        
-        else:
-            atom = Atom(token)
-            return atom.value
+        return expr[0]
         
 """
 The Tokenizer class divides source file into so-called tokens (= elements which we structure
