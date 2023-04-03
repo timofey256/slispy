@@ -49,6 +49,10 @@ class Environment:
     def get_env(self):
         return self.__env
 
+    def force_gc(self):
+        vm = VM_Manager.get_instance()
+        vm.gc(self.__env)
+
     def __update(self, v):
         for item in v.items():
             self.set_var(item[0], item[1])
