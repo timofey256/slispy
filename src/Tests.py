@@ -103,7 +103,6 @@ class EvalTestCase(unittest.TestCase):
 class TestMemoryManagement(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName)
-        self.env = Environment()
         self.t = Tokenizer()
         self.p = Parser()
 
@@ -111,15 +110,17 @@ class TestMemoryManagement(unittest.TestCase):
         return self.p.parse(self.t.tokenize(expression))
 
     def test_variable_initialization(self):
+        env = Environment()
+        
         var = 5
-        self.env.set_var("var", var)
-        self.assertEqual(self.env.get_var("var"), var)
+        env.set_var("var", var)
+        self.assertEqual(env.get_var("var"), var)
 
     def test_gc(self):
+        env = Environment()
         var2 = 10
-        inner_env = Environment((), (), self.env)
+        inner_env = Environment((), (), env)
         inner_env.set_var("var2", var2)
-        self.env.force_gc()
         try:
             inner_env.get_var("var2")
             self.assertEqual(True, False)
@@ -127,11 +128,12 @@ class TestMemoryManagement(unittest.TestCase):
             self.assertEqual(True, True)
 
     def test_gc2(self):
-        self.env.force_gc()
-        var3 = eval(self.get_AST("(* 2 3)"), self.env)
-        inner_env = Environment((), (), self.env)
+        env = Environment()
+
+        var3 = eval(self.get_AST("(* 2 3)"), env)
+        inner_env = Environment((), (), env)
         inner_env.set_var("var3", var3)
-        self.env.force_gc()
+        env.force_gc()
         try:
             inner_env.get_var("var3")
             self.assertEqual(True, False)
@@ -139,10 +141,10 @@ class TestMemoryManagement(unittest.TestCase):
             self.assertEqual(True, True)
         
     def test_procedure_scope_with_forced_gc(self):
-        f = Procedure("r", ["*", "r", 5], self.env)
-        self.env.set_var("function", f)
-        self.env.force_gc()
-        getted = self.env.get_var("function")
+        env = Environment()
+        f = Procedure("r", ["*", "r", 5], env)
+        env.set_var("function", f)
+        getted = env.get_var("function")
         self.assertEqual(getted(3), 15)
 
 if __name__ == '__main__':
