@@ -26,7 +26,7 @@ class _Block:
     def __repr__(self):
         return f"[size: {self.size} | data: {self.data} | is_free: {self.is_free}]"
 
-MAX_HEAP_SIZE = 512
+MAX_HEAP_SIZE = 1024
 HEADER_SIZE = sys.getsizeof(_Block)
 
 class _VirtualMemory:
