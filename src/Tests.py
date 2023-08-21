@@ -119,7 +119,7 @@ class TestMemoryManagement(unittest.TestCase):
         env.force_gc()
         try:
             inner_env.get_var("var2")
-            self.assertEqual(1, 2)
+            self.assertEqual(True, False)
         except:
             self.assertEqual(True, True)
         
