@@ -29,12 +29,14 @@ class Environment:
         if key in self.__env:
             block = vm.heap[self.__env[key]]
             block.data = value
+            block.is_marked = True
         else:
             (new_block, index) = self.__try_allocate_memory(vm, value)
             if new_block is None:
                 raise Exception("Not enough memory.")
             
             new_block.data = value
+            new_block.is_marked = True
             self.__env[key] = index
 
     def get_var(self, key):
@@ -44,7 +46,7 @@ class Environment:
         if value is None:
             raise Exception(f"{key} wasn't defined")
         else:
-            return value        
+            return value
     
     def get_env(self):
         return self.__env
