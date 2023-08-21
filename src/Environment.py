@@ -18,19 +18,24 @@ class Environment:
     """
     def __init__(self, parms=(), args=(), outer = None):
         self.__env = {}
+        self.outer = outer
         if outer is None:
             self.__set_default_env()
         self.__update(dict(zip(parms, args)))
-        self.outer = outer
 
     def set_var(self, key, value):
         vm = VM_Manager.get_instance()
 
+        index = self._find_env_var(key)
+        #if index is not None:
         if key in self.__env:
-            block = vm.heap[self.__env[key]]
+            block = vm.heap[index]
             block.data = value
             block.is_marked = True
         else:
+            # for block in vm.heap:
+            #     if block and block.data == value:
+            #         print("HEY!!!")
             (new_block, index) = self.__try_allocate_memory(vm, value)
             if new_block is None:
                 raise Exception("Not enough memory.")
@@ -79,6 +84,13 @@ class Environment:
         # then try it in outer scope ("in more global scope" so to say) 
         elif self.outer is not None:
             return self.outer.__find(vm, key)
+        return None
+
+    def _find_env_var(self, key):
+        if key in self.__env:
+            return self.__env[key]
+        elif self.outer is not None:
+            return self.outer._find_env_var(key)
         return None
     
     """
