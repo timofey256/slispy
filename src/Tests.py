@@ -103,34 +103,47 @@ class EvalTestCase(unittest.TestCase):
 class TestMemoryManagement(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName)
+        self.env = Environment()
+        self.t = Tokenizer()
+        self.p = Parser()
+
+    def get_AST(self, expression : str):
+        return self.p.parse(self.t.tokenize(expression))
 
     def test_variable_initialization(self):
-        env = Environment()
         var = 5
-        env.set_var("var", var)
-        self.assertEqual(env.get_var("var"), var)
+        self.env.set_var("var", var)
+        self.assertEqual(self.env.get_var("var"), var)
 
     def test_gc(self):
-        env = Environment()
-
         var2 = 10
-        inner_env = Environment((), (), env)
+        inner_env = Environment((), (), self.env)
         inner_env.set_var("var2", var2)
-        env.force_gc()
+        self.env.force_gc()
         try:
             inner_env.get_var("var2")
             self.assertEqual(True, False)
         except:
             self.assertEqual(True, True)
+
+    def test_gc2(self):
+        self.env.force_gc()
+        var3 = eval(self.get_AST("(* 2 3)"), self.env)
+        inner_env = Environment((), (), self.env)
+        inner_env.set_var("var3", var3)
+        self.env.force_gc()
+        try:
+            inner_env.get_var("var3")
+            self.assertEqual(True, False)
+        except:
+            self.assertEqual(True, True)
         
     def test_procedure_scope_with_forced_gc(self):
-        env = Environment()
-
-        f = Procedure("r", ["*", "r", 5], env)
-        env.set_var("function", f)
-        env.force_gc()
-        getted = env.get_var("function")
+        f = Procedure("r", ["*", "r", 5], self.env)
+        self.env.set_var("function", f)
+        self.env.force_gc()
+        getted = self.env.get_var("function")
         self.assertEqual(getted(3), 15)
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
