@@ -31,17 +31,14 @@ class Environment:
         if key in self.__env:
             block = vm.heap[index]
             block.data = value
-            block.is_marked = True
+            block.is_free = False
         else:
-            # for block in vm.heap:
-            #     if block and block.data == value:
-            #         print("HEY!!!")
             (new_block, index) = self.__try_allocate_memory(vm, value)
             if new_block is None:
                 raise Exception("Not enough memory.")
             
             new_block.data = value
-            new_block.is_marked = True
+            new_block.is_free = False
             self.__env[key] = index
 
     def get_var(self, key):
@@ -52,7 +49,7 @@ class Environment:
             raise Exception(f"{key} wasn't defined")
         else:
             return value
-    
+
     def get_env(self):
         return self.__env
 
@@ -102,11 +99,13 @@ class Environment:
             '+':op.add, '-':op.sub, '*':op.mul, '/':op.truediv, 
             '>':op.gt, '<':op.lt, '>=':op.ge, '<=':op.le, '=':op.eq, 
             'abs':     abs,
+            'or':      lambda *x: stl.logical_or(*x),
+            'and':     lambda *x: stl.logical_and(*x),
             'append':  op.add,  
             'apply':   lambda proc, args: proc(*args),
             'begin':   lambda *x: x[-1],
-            'car':     lambda x: x[0],
-            'cdr':     lambda x: x[1:], 
+            'car':     lambda x: x.car,
+            'cdr':     lambda x: x.cdr,
             'setcar':  stl.setcar,
             'setcdr':  stl.setcdr,
             'cons':    lambda x,y: [x] + y,
@@ -114,8 +113,8 @@ class Environment:
             'expt':    pow,
             'equal?':  op.eq, 
             'length':  len, 
-            'list':    lambda *x: Types.List(x), 
-            'list?':   lambda x: isinstance(x, Types.List), 
+            'cons':    lambda *x: Types.Cons(x), 
+            'cons?':   lambda x: isinstance(x, Types.Cons), 
             'map':     map,
             'max':     max,
             'min':     min,
