@@ -16,8 +16,8 @@ def eval(exp : Types.Exp, e = global_env):
     args = exp[1:]
     if op == 'quote': 
         return args[0]
-    elif op == "if":               
-        (syntax_if, test, conseq, alt) = exp
+    elif op == "if":
+        (_, test, conseq, alt) = exp
         exp = (conseq if eval(test, e) else alt)
         return eval(exp, e)
     elif op == "define":           
@@ -32,10 +32,15 @@ def eval(exp : Types.Exp, e = global_env):
     else:           
         proc = eval(op, e)
         args = [eval(arg, e) for arg in args]
+
         if proc is None and args is not None:
             for arg in args:
                 if arg is not None:
                     return arg
+                
+        if not callable(proc):
+            return proc
+        
         return proc(*args)
 
 """
