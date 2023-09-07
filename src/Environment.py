@@ -28,7 +28,7 @@ class Environment:
 
         index = self._find_env_var(key)
         #if index is not None:
-        if key in self.__env:
+        if self.__find_in_envs(key, self):
             block = vm.heap[index]
             block.data = value
             block.is_free = False
@@ -71,7 +71,16 @@ class Environment:
             (new_block, index) = vm.malloc(sys.getsizeof(data))
 
         return (new_block, index)          
-
+    
+    def __find_in_envs(self, key, env):
+        if env is None:
+            return None
+        
+        if key in env.__env:
+            return True
+        else:
+            return self.__find_in_envs(key, env.outer)
+        
     def __find(self, vm, key):
         if key in self.__env:
             index = self.__env[key]
@@ -120,6 +129,7 @@ class Environment:
             'min':     min,
             'not':     op.not_,
             'null?':   lambda x: x == [], 
+            'null':    None, 
             'number?': lambda x: isinstance(x, Types.Number),  
             'print':   print,
             'procedure?': callable,
