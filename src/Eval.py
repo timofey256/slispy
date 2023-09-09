@@ -23,24 +23,26 @@ def eval(exp : Types.Exp, e = global_env):
     elif op == "define":           
         (_, symbol, exp) = exp
         e.set_var(symbol, eval(exp, e))
+        return None
     elif op == "set!":
         (symbol, value) = args
         e.set_var(symbol, eval(value, e))
+        return None
     elif op == "lambda":
         (parms, body) = args
         return Procedure(parms, body, e)
-    else:           
-        proc = eval(op, e)
-        args = [eval(arg, e) for arg in args]
-
-        if proc is None and args is not None:
-            for arg in args:
-                if arg is not None:
-                    return arg
-                
-        if not callable(proc):
-            return proc
-        
+    
+    proc = eval(op, e)
+    args = [eval(arg, e) for arg in args]
+   
+    # proc, in fact, is not a function. might be, for example a sequence of statements:
+    if not callable(proc):
+        for arg in args[::-1]:
+            if arg is not None:
+                return arg
+        return proc
+    # proc is a function:
+    else:
         return proc(*args)
 
 """
