@@ -31,17 +31,17 @@ def eval(exp : Types.Exp, e = global_env):
     elif op == "lambda":
         (parms, body) = args
         return Procedure(parms, body, e)
-    
+
     proc = eval(op, e)
     args = [eval(arg, e) for arg in args]
    
-    # proc, in fact, is not a function. might be, for example a sequence of statements:
+    # if 'proc', in fact, is not a function. might be, for example, a sequence of statements:
     if not callable(proc):
         for arg in args[::-1]:
             if arg is not None:
                 return arg
         return proc
-    # proc is a function:
+    # 'proc' is a function:
     else:
         return proc(*args)
 

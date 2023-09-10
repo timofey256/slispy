@@ -46,7 +46,7 @@ class Environment:
         value = self.__find(vm, key)
 
         if value is None:
-            raise Exception(f"{key} wasn't defined")
+            raise Exception(f"\"{key}\" wasn't defined")
         else:
             return value
 
