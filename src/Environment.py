@@ -25,8 +25,8 @@ class Environment:
         if outer is None:
             self.__set_default_env()
         self.__update(dict(zip(parms, args)))
-
-        self.args_amount = 0
+        
+        self.evaluated_args_num = 0 if outer==None else outer.evaluated_args_num
 
     def set_var(self, key, value):
         vm = VM_Manager.get_instance()
@@ -47,8 +47,11 @@ class Environment:
             self.__env[key] = index
 
     def register_evaluated_arg(self, value):
-        random_key = ''.join(random.choices(string.ascii_uppercase + string.digits, k=16))
-        self.set_var(random_key, value)
+        self.evaluated_args_num += 1
+        # adding also random prefix to prevent collisions with user's variables (user might declare e.g. "1", "evaluated_arg_1", etc.)
+        random_prefix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+        key = f'{random_prefix}_{self.evaluated_args_num}'
+        self.set_var(key, value)
 
     def get_var(self, key):
         vm = VM_Manager.get_instance()
