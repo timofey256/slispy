@@ -23,6 +23,8 @@ class Environment:
             self.__set_default_env()
         self.__update(dict(zip(parms, args)))
 
+        self.args_amount = 0
+
     def set_var(self, key, value):
         vm = VM_Manager.get_instance()
 
@@ -40,6 +42,10 @@ class Environment:
             new_block.data = value
             new_block.is_free = False
             self.__env[key] = index
+
+    def register_evaluated_arg(self, value):
+        self.args_amount += 1
+        self.set_var(str(hash(self.args_amount)), value)
 
     def get_var(self, key):
         vm = VM_Manager.get_instance()

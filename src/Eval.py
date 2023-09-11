@@ -33,17 +33,21 @@ def eval(exp : Types.Exp, e = global_env):
         return Procedure(parms, body, e)
 
     proc = eval(op, e)
-    args = [eval(arg, e) for arg in args]
-   
+    evaluated_args = []
+    for arg in args:
+        evaluated_arg = eval(arg, e)
+        e.register_evaluated_arg(evaluated_arg)
+        evaluated_args.append(evaluated_arg)
+    
     # if 'proc', in fact, is not a function. might be, for example, a sequence of statements:
     if not callable(proc):
-        for arg in args[::-1]:
+        for arg in evaluated_args[::-1]:
             if arg is not None:
                 return arg
         return proc
     # 'proc' is a function:
     else:
-        return proc(*args)
+        return proc(*evaluated_args)
 
 """
 The Procedure class implements function with arguments.
