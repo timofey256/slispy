@@ -1,8 +1,11 @@
 import math
 import operator as op
+import sys
+import random
+import string
+
 import Types
 import StandardLibrary as stl
-import sys
 from VirtualMemory import VM_Manager
 
 """
@@ -44,8 +47,8 @@ class Environment:
             self.__env[key] = index
 
     def register_evaluated_arg(self, value):
-        self.args_amount += 1
-        self.set_var(str(hash(self.args_amount)), value)
+        random_key = ''.join(random.choices(string.ascii_uppercase + string.digits, k=16))
+        self.set_var(random_key, value)
 
     def get_var(self, key):
         vm = VM_Manager.get_instance()
